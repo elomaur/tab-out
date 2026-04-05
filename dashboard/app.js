@@ -289,7 +289,8 @@ function renderOpenTabsMissionCard(mission, missionIndex) {
   const pageChips = visibleTabs.map(tab => {
     const label   = tab.title || tab.url || '';
     const display = label.length > 45 ? label.slice(0, 45) + '…' : label;
-    return `<span class="page-chip">${display}</span>`;
+    // Each chip is clickable — clicking it switches to that specific tab
+    return `<span class="page-chip clickable" data-action="focus-tab" data-tab-url="${(tab.url || '').replace(/"/g, '&quot;')}" title="${label.replace(/"/g, '&quot;')}">${display}</span>`;
   }).join('') + (extraCount > 0 ? `<span class="page-chip">+${extraCount} more</span>` : '');
 
   // Use a stable ID based on mission name (not array index, which shifts when
@@ -690,6 +691,15 @@ document.addEventListener('click', async (e) => {
 
   // Find the card element so we can animate it
   const card = actionEl.closest('.mission-card');
+
+  // ---- focus-tab: switch to a specific open tab ----
+  if (action === 'focus-tab') {
+    const tabUrl = actionEl.dataset.tabUrl;
+    if (tabUrl) {
+      await sendToExtension('focusTab', { url: tabUrl });
+    }
+    return;
+  }
 
   // ---- close-open-tabs: close all tabs for an open-tab-clustered mission ----
   // These missions use a stable ID (based on name) so closing one doesn't

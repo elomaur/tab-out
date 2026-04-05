@@ -65,6 +65,10 @@ window.addEventListener('message', async (event) => {
       // Dashboard sends urls as an array; we focus the first match
       response = await handleFocusTabs({ urls: msg.urls });
 
+    } else if (action === 'focusTab') {
+      // Focus a single specific tab by exact URL match
+      response = await handleFocusSingleTab(msg.url);
+
     } else {
       response = { error: `Unknown action: ${action}` };
     }
@@ -179,4 +183,32 @@ async function handleFocusTabs({ urls = [] } = {}) {
   await chrome.windows.update(matchingTab.windowId, { focused: true });
 
   return { focusedTabId: matchingTab.id };
+}
+
+/**
+ * focusSingleTab — Switches to a specific tab by exact URL match.
+ * Used when the user clicks a page chip to jump to that exact tab.
+ */
+async function handleFocusSingleTab(url) {
+  if (!url) return { error: 'No URL provided' };
+
+  const allTabs = await chrome.tabs.query({});
+
+  // Try exact URL match first, then fall back to hostname match
+  let match = allTabs.find(t => t.url === url);
+  if (!match) {
+    try {
+      const targetHost = new URL(url).hostname;
+      match = allTabs.find(t => {
+        try { return new URL(t.url).hostname === targetHost; }
+        catch { return false; }
+      });
+    } catch {}
+  }
+
+  if (!match) return { error: 'Tab not found' };
+
+  await chrome.tabs.update(match.id, { active: true });
+  await chrome.windows.update(match.windowId, { focused: true });
+  return { focusedTabId: match.id };
 }

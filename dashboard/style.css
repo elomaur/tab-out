@@ -382,6 +382,17 @@ header {
   border: 1px solid rgba(154, 145, 138, 0.12);
 }
 
+.page-chip.clickable {
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-chip.clickable:hover {
+  color: var(--ink);
+  border-color: var(--accent-amber);
+  background: rgba(200, 113, 58, 0.06);
+}
+
 .mission-meta {
   text-align: right;
   white-space: nowrap;
