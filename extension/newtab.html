@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mission Control</title>
+  <title>Tab Out</title>
   <style>
     /* Reset all default browser spacing so the iframe fills the entire tab */
     * {
@@ -83,19 +83,19 @@
   <iframe
     id="dashboard-frame"
     src="http://localhost:3456"
-    title="Mission Control Dashboard"
+    title="Tab Out Dashboard"
   ></iframe>
 
   <!-- Fallback view: shown when the server at localhost:3456 is not reachable -->
   <div id="fallback" class="hidden">
-    <h1>Mission Control is not running</h1>
+    <h1>Tab Out is not running</h1>
     <p>
       The dashboard server isn't detected at <code>localhost:3456</code>.<br/>
       To start it, open your terminal and run:
     </p>
-    <p><code>cd tab-mission-control &amp;&amp; npm start</code></p>
+    <p><code>cd tab-out &amp;&amp; npm start</code></p>
     <p>
-      Once the server is running, open a new tab and Mission Control will appear.
+      Once the server is running, open a new tab and Tab Out will appear.
     </p>
   </div>
 

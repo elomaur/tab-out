@@ -1,6 +1,6 @@
 // server/index.js
 // ─────────────────────────────────────────────────────────────────────────────
-// Main entry point for the Mission Control server.
+// Main entry point for the Tab Out server.
 //
 // Think of this file as the "front door" of the whole app. It:
 //   1. Creates the web server (Express)
@@ -129,7 +129,7 @@ async function checkAndRunAnalysis() {
 // config.refreshIntervalMinutes * 60 * 1000 converts minutes → milliseconds.
 // ─────────────────────────────────────────────────────────────────────────────
 app.listen(config.port, () => {
-  console.log(`Mission Control running at http://localhost:${config.port}`);
+  console.log(`Tab Out running at http://localhost:${config.port}`);
 
   // Run analysis check immediately on startup (non-blocking — we don't await
   // it here so the server is responsive right away even if analysis takes time)

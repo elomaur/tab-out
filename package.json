@@ -1,7 +1,7 @@
 {
-  "name": "tab-mission-control",
+  "name": "tab-out",
   "version": "1.0.0",
-  "description": "",
+  "description": "Keep tabs on your tabs — an AI-powered mission dashboard for your Chrome new tab page",
   "main": "index.js",
   "directories": {
     "doc": "docs"

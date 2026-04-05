@@ -1,6 +1,6 @@
 // scripts/install.js
 // ─────────────────────────────────────────────────────────────────────────────
-// One-time setup script for Mission Control.
+// One-time setup script for Tab Out.
 //
 // Run this once with: npm run install-service
 //
@@ -66,10 +66,20 @@ function ensureDir(dirPath) {
  *   - StandardOutPath / StandardErrorPath: where to write logs
  */
 function buildPlistContent() {
-  // We need the absolute path to the node binary currently running this script
-  const nodeBin     = process.execPath;
+  // Resolve the node binary path via `which node` for maximum portability.
+  // process.execPath works too but can sometimes point to a version manager
+  // shim rather than the real binary. We prefer `which node` so the plist
+  // uses the actual executable that will survive shell restarts.
+  let nodeBin;
+  try {
+    nodeBin = execSync('which node', { encoding: 'utf8' }).trim();
+  } catch (_) {
+    // Fall back to the path of the node binary running this script
+    nodeBin = process.execPath;
+  }
 
-  // Absolute path to our server entry point
+  // Absolute path to our server entry point — derived from this file's
+  // location (__dirname) so it works regardless of where the repo was cloned.
   const serverEntry = path.join(__dirname, '..', 'server', 'index.js');
 
   // Resolve to a clean absolute path (no ".." segments)
@@ -120,7 +130,7 @@ function buildPlistContent() {
 // ── Main install steps ────────────────────────────────────────────────────────
 
 function main() {
-  console.log('\n=== Mission Control — Install Script ===\n');
+  console.log('\n=== Tab Out — Install Script ===\n');
 
   // Step 1: Create ~/.mission-control/
   console.log('Step 1: Setting up data directory...');
@@ -140,7 +150,7 @@ function main() {
     const defaultConfig = JSON.stringify(DEFAULTS, null, 2);
     fs.writeFileSync(CONFIG_FILE, defaultConfig, 'utf8');
     console.log(`[install] Created default config at ${CONFIG_FILE}`);
-    console.log('[install] IMPORTANT: Add your DeepSeek API key to that file before starting the server.');
+    console.log('[install] IMPORTANT: Open that file and add your DeepSeek API key to the deepseekApiKey field before starting the server.');
   }
 
   // Step 4: Create the macOS Launch Agent plist.
@@ -168,7 +178,7 @@ function main() {
     // Now load the new plist
     execSync(`launchctl load -w "${PLIST_FILE}"`, { stdio: 'inherit' });
     console.log('[install] Launch Agent loaded successfully.');
-    console.log(`[install] Mission Control server will start automatically on login.`);
+    console.log(`[install] Tab Out server will start automatically on login.`);
   } catch (err) {
     // launchctl can fail for various reasons (e.g. if server/index.js doesn't exist yet).
     // This is non-fatal during initial setup — the server just won't auto-start until
@@ -179,7 +189,10 @@ function main() {
   }
 
   // Done!
-  console.log('\n=== Installation complete! ===\n');
+  console.log('\n=== Tab Out installation complete! ===\n');
+  console.log('Next step: Add your DeepSeek API key to the config file shown below.');
+  console.log('Then run: npm start');
+  console.log('');
   console.log('To start the server manually: npm start');
   console.log(`Config file: ${CONFIG_FILE}`);
   console.log(`Logs: ${LOGS_DIR}`);

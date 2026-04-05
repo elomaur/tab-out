@@ -81,7 +81,9 @@ const config = loadConfig();
 //   const config = require('./config');
 //   console.log(config.port);
 // Also attach the paths as properties for modules that need them (e.g. install.js)
-config.CONFIG_DIR = CONFIG_DIR;
+config.CONFIG_DIR  = CONFIG_DIR;
 config.CONFIG_FILE = CONFIG_FILE;
+// Also export DEFAULTS so install.js can write a proper starter config file
+config.DEFAULTS    = DEFAULTS;
 
 module.exports = config;

@@ -371,12 +371,13 @@ function timeAgo(dateStr) {
  *
  * Returns an appropriate greeting based on the current hour.
  * Morning = before noon, Afternoon = noon–5pm, Evening = after 5pm.
+ * No name — Tab Out is for everyone now.
  */
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning, Zara';
-  if (hour < 17) return 'Good afternoon, Zara';
-  return 'Good evening, Zara';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
 }
 
 /**
