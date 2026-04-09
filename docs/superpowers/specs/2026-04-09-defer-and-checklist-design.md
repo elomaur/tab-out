@@ -204,9 +204,16 @@ Response: `{ "results": [...matching archived items...] }`
 
 ## Visual Design
 
+### Tab Chip Action Buttons (UX Improvement)
+
+The existing close (X) button on tab chips is too small and only appears on hover. Both the close and the new save buttons need to be:
+- **Always visible** — no hover required to reveal them
+- **Larger hit target** — easy to click without precision aiming
+- **Clearly spaced** — save icon on the left, close X on the right (or vice versa), with enough gap to avoid misclicks
+
 ### Save Icon
 
-Use a bookmark or flag icon — something that signals "save" without being confused with "favorite" or "close." Should be the same size and style as the existing X button on tab chips.
+Use a bookmark or flag icon — something that signals "save" without being confused with "favorite" or "close." Should match the new larger button size.
 
 ### Checklist Column
 
