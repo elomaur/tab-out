@@ -13,10 +13,6 @@ const express = require('express');
 const path    = require('path');
 const config  = require('./config');
 
-// The update checker polls GitHub every 6 hours for new commits.
-// We import it here so we can start it after the server is ready.
-const { startUpdateChecker } = require('./updater');
-
 const app = express();
 
 // Allow requests from the Chrome extension.
@@ -44,9 +40,4 @@ app.use('/api', apiRouter);
 // Start the server
 app.listen(config.port, () => {
   console.log(`Tab Out running at http://localhost:${config.port}`);
-
-  // Kick off the update checker AFTER the server is listening.
-  // This way, even if the first GitHub check takes a few seconds,
-  // the server is already ready to handle requests.
-  startUpdateChecker();
 });

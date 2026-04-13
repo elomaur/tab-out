@@ -17,12 +17,8 @@
 //   - .get()    → returns a single row or undefined
 // ─────────────────────────────────────────────────────────────────────────────
 
-const express  = require('express');
-const { exec } = require('child_process');  // for running git pull + npm install
-const path      = require('path');
-
-// Pull in the update checker so we can return status to the dashboard
-const { getUpdateStatus } = require('./updater');
+const express = require('express');
+const path    = require('path');
 
 // Pull in the database prepared statements we need
 const {
@@ -229,103 +225,14 @@ router.get('/stats', (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/update-status
-//
-// Returns the current update-check result so the dashboard can decide whether
-// to show the "New version available" banner.
-//
-// Response: { updateAvailable: boolean, currentVersion: string }
-//
-// This is intentionally lean — the dashboard only needs to know two things:
-// 1. Is there an update? (to decide whether to show the banner)
-// 2. What version am I on? (for display text)
-// ─────────────────────────────────────────────────────────────────────────────
+// Updater routes removed — see fork notes.
+// The upstream POST /api/update endpoint executed `git reset --hard` + `npm install`
+// with no auth and CORS=*, which is a drive-by RCE path for any site visited in
+// the browser. The update-status banner endpoint is also removed since the
+// updater module no longer runs. Update manually with `git pull` + `npm install`
+// + service reload if you ever want to pull a new version.
 router.get('/update-status', (req, res) => {
-  try {
-    const status = getUpdateStatus();
-    res.json({
-      updateAvailable: status.updateAvailable,
-      currentVersion:  status.currentVersion,
-    });
-  } catch (err) {
-    console.error('[routes] GET /update-status failed:', err.message);
-    // Return a safe "no update" response rather than a 500 — the banner
-    // is a non-critical feature; it should never break the dashboard.
-    res.json({ updateAvailable: false, currentVersion: '1.0.0' });
-  }
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/update
-//
-// Triggers a `git pull origin main` + `npm install` in the project directory.
-// Called when the user clicks "Update now" in the dashboard banner.
-//
-// Steps:
-//   1. Run `git pull origin main` to fetch + merge the latest code
-//   2. Run `npm install` in case any new dependencies were added
-//
-// Both commands run from the project root (PROJECT_ROOT).
-//
-// The server must be RESTARTED by the user (or a process manager like launchd)
-// to actually load the new code — that's intentional. Restarting mid-request
-// would be unsafe.
-//
-// Response:
-//   { success: true,  message: "Updated! Restart the server to apply." }
-//   { success: false, message: "<error details>" }
-// ─────────────────────────────────────────────────────────────────────────────
-router.post('/update', (req, res) => {
-  // Project root is two levels up from this file (server/ → project root)
-  const PROJECT_ROOT = path.join(__dirname, '..');
-
-  console.log('[routes] POST /update — running git pull + npm install');
-
-  // Step 1: git pull
-  // exec() runs a command asynchronously and calls back with (error, stdout, stderr).
-  // We use exec (not execSync) here so the HTTP request thread doesn't block —
-  // git pull can take several seconds on a slow connection.
-  // git fetch + reset --hard grabs the latest remote code and overwrites local files.
-  // This is safer than git pull for a self-updating app — no merge conflicts possible.
-  // Any local edits get overwritten, which is fine because the remote IS the source of truth.
-  exec(
-    'git fetch origin main && git reset --hard origin/main',
-    { cwd: PROJECT_ROOT, timeout: 60000 },
-    (gitErr, gitOut, gitStderr) => {
-
-    if (gitErr) {
-      // git pull failed — could be a merge conflict, no network, etc.
-      console.error('[routes] git pull failed:', gitStderr || gitErr.message);
-      return res.json({
-        success: false,
-        message: `git pull failed: ${gitStderr || gitErr.message}`,
-      });
-    }
-
-    console.log('[routes] git pull succeeded:', gitOut.trim());
-
-    // Step 2: npm install (in case package.json changed)
-    exec('npm install', { cwd: PROJECT_ROOT, timeout: 120000 }, (npmErr, npmOut, npmStderr) => {
-
-      if (npmErr) {
-        // npm install failed — unusual but possible (disk space, bad package, etc.)
-        console.error('[routes] npm install failed:', npmStderr || npmErr.message);
-        return res.json({
-          success: false,
-          message: `npm install failed: ${npmStderr || npmErr.message}`,
-        });
-      }
-
-      console.log('[routes] npm install succeeded');
-
-      // Both steps completed — tell the user to restart the server
-      res.json({
-        success: true,
-        message: 'Updated! Restart the server to apply the new version.',
-      });
-    });
-  });
+  res.json({ updateAvailable: false, currentVersion: '1.0.0' });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
